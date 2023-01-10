@@ -90,11 +90,20 @@ namespace issues.Services
         public async Task<ServiceResponse<GetIssueDTO>> DeleteIssue(int id)
         {
             var response = new ServiceResponse<GetIssueDTO>();
-            var issue = await _context.Issues.FirstOrDefaultAsync(i => i.Id == id);
-            if (issue is null) throw new Exception($"The issue id:{id} does not exist");
-            _context.Remove(issue);
-            await _context.SaveChangesAsync();
-            response.Data = _mapper.Map<GetIssueDTO>(issue);
+            try
+            {
+                var issue = await _context.Issues.FirstOrDefaultAsync(i => i.Id == id);
+                if (issue is null) throw new Exception($"The issue id:{id} does not exist");
+                _context.Remove(issue);
+                await _context.SaveChangesAsync();
+                response.Data = _mapper.Map<GetIssueDTO>(issue);
+            }
+            catch (Exception ex)
+            {
+                response.success = false;
+                response.message = ex.Message;
+            }
+
             return response;
         }
     }
